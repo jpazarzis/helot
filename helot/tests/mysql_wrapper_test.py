@@ -3,7 +3,7 @@ import os
 import unittest
 import unittest.mock as mock
 
-from helot.common.configuration import configuration
+from helot.configuration import configuration
 
 import helot.mysql_wrapper as mysql_wrapper
 from helot.mysql_wrapper import db_connection
