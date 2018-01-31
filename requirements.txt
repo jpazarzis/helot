@@ -1,0 +1,4 @@
+# Add additional python dependencies here
+pyyaml
+mysqlclient
+coverage
