@@ -40,4 +40,5 @@ setup(
     author="John Pazarzis",
     install_requires=get_requirements(),
     packages=find_packages(),
+    version='1.0.0',
 )
