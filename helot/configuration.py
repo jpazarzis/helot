@@ -31,6 +31,9 @@ class _ConfigurationMeta(type, DataHolderObject):
         raise ConfigurationError
 
 
+d
+
+
 class configuration(metaclass=_ConfigurationMeta):
     """Exposes configuration settings.
 
@@ -55,8 +58,6 @@ class configuration(metaclass=_ConfigurationMeta):
 
         for attr_name in to_delete:
             delattr(cls, attr_name)
-
-
 
     @classmethod
     def initialize(cls, data_holder=None, **kwargs):
