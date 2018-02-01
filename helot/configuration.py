@@ -81,7 +81,7 @@ class Configuration(DataHolderObject):
         """Sets the execution mode.
 
         :parameter data_holder: Can be one of the following:
-            (str) The yaml configuration filename.
+            (str) The yaml or json configuration filename.
             (dict) A dict containing key - value pairs.
 
         :parameter **kwargs: key-value pairs to add in the configuration.
