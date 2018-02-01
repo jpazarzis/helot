@@ -14,6 +14,9 @@ _BAD_YAML_CONIFIGURATION_FILENAME = os.path.join(_RESOURCES_DIR, 'invalid.yaml')
 
 
 class TestConfiguration(unittest.TestCase):
+    def setUp(self):
+        configuration.reset()
+
     def test_testing_mode(self):
         configuration.initialize(_YAML_CONIFIGURATION_FILENAME)
         self.assertEqual(configuration.name, "Martin D'vloper")
@@ -168,27 +171,3 @@ class TestConfiguration(unittest.TestCase):
                          ['C++', 'C#'])
         self.assertEqual(configuration.languages.object_oriented.great, 'Java')
         self.assertEqual(configuration.junk, 'some junk')
-
-    # def test_reset(self):
-    #     return
-    #     configuration.initialize(_YAML_CONIFIGURATION_FILENAME)
-    #
-    #     expected_count = 8
-    #     retrieved_count = 0
-    #     for attr_name in dir(configuration):
-    #         if attr_name.startswith('__') and attr_name.endswith('__'):
-    #             continue
-    #         print(attr_name)
-    #         retrieved_count += 1
-    #     self.assertEqual(expected_count, retrieved_count)
-    #
-    #
-    #     configuration.reset()
-    #
-    #     expected_count = 0
-    #     retrieved_count = 0
-    #     for attr_name in dir(configuration):
-    #         if attr_name.startswith('__') and attr_name.endswith('__'):
-    #             continue
-    #         retrieved_count += 1
-    #     self.assertEqual(expected_count, retrieved_count)

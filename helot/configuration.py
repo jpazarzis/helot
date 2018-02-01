@@ -43,6 +43,22 @@ class configuration(metaclass=_ConfigurationMeta):
     """
 
     @classmethod
+    def reset(cls):
+
+        to_delete = []
+        for attr_name in dir(cls):
+            if attr_name.startswith('__') and attr_name.endswith('__'):
+                continue
+            if callable(getattr(cls, attr_name)):
+                continue
+            to_delete.append(attr_name)
+
+        for attr_name in to_delete:
+            delattr(cls, attr_name)
+
+
+
+    @classmethod
     def initialize(cls, data_holder=None, **kwargs):
         """Sets the execution mode.
 
@@ -56,6 +72,7 @@ class configuration(metaclass=_ConfigurationMeta):
         :raises ConfigurationError: Parsing error.
         """
         try:
+            cls.reset()
             if not data_holder:
                 data_holder = {}
             data_as_dict = None
