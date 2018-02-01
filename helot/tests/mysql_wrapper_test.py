@@ -14,14 +14,13 @@ from helot.mysql_wrapper import query_executor_user
 
 _CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 _RESOURCES_DIR = os.path.join(_CURRENT_DIR, 'resources')
-_CONIFIGURATION_FILENAME = os.path.join(_RESOURCES_DIR, 'sample.yaml')
+_CONIFIGURATION_FILENAME = os.path.join(_RESOURCES_DIR, 'mysql.yaml')
 _INVALID_CONIFIGURATION_FILENAME = os.path.join(_RESOURCES_DIR, 'invalid.yaml')
 _WORLD_CAPITALS_FILENAME = os.path.join(_RESOURCES_DIR, 'world_capitals.csv')
 _SQL_SELECT_CAPITALS = 'Select country, capital from world_capitals'
 _SQL_DROP_DB = 'DROP Database If EXISTS {}'.format
 _SQL_CREATE_DB = 'create Database {}'.format
 
-configuration.initialize(_CONIFIGURATION_FILENAME)
 
 _SQL_INSERT_CAPITAL = '''
 Insert into world_capitals (
@@ -46,6 +45,7 @@ CREATE TABLE if not exists `world_capitals` (
 
 class TestMysqlWrapper(unittest.TestCase):
     def setUp(self):
+        configuration.initialize(_CONIFIGURATION_FILENAME)
         with make_non_query_executor(connect_to_db=False) as execute_query:
             db_name = configuration.mysql.db
             stmts = [

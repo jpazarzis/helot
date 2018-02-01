@@ -12,4 +12,5 @@ __all__ = [
     'query_executor_user',
     'make_non_query_executor',
     'make_query_executor',
+    'execute_query'
 ]

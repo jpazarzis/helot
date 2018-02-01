@@ -9,7 +9,7 @@ from functools import wraps
 import logging
 
 import MySQLdb
-from .configuration import configuration
+from helot.configuration import configuration
 
 
 @contextmanager

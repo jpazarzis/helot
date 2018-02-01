@@ -58,6 +58,13 @@ class TestConfiguration(unittest.TestCase):
         x.t1.t2.t3 = [1, 2]
         self.assertListEqual(x.t1.t2.t3, [1, 2])
 
+    def test_assignments(self):
+        configuration.host = 'localhost'
+        self.assertTrue(isinstance(configuration.host, str))
+        configuration.reset()
+        configuration.host = 'localhost'
+        self.assertTrue(isinstance(configuration.host, str))
+
     def test_json_initialization(self):
         configuration.initialize(_JSON_CONIFIGURATION_FILENAME)
         self.assertEqual(configuration.name, "Martin D'vloper")
