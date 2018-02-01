@@ -30,7 +30,7 @@ properties that can be accessed using the dot notation.
 
 Sample code to create and db and call execute query:
 
-```
+```python
 import helot
 
 _SQL_INSERT_CAPITAL = '''
