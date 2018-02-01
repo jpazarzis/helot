@@ -31,7 +31,27 @@ properties that can be accessed using the dot notation.
     from helot import execute_query
     for row in execute_query('Select name from person'):
         print(row.name)
-    
+```
+
+Sample code for execute query:
+
+```angular2html
+import helot
+
+settings = {
+  "mysql": {
+    "host": "localhost",
+    "user": "root",
+    "passwd": "vagrant",
+    "db": "test"
+  }
+}
+
+helot.configuration.initialize(settings)
+
+for row in helot.execute_query('Select country, capital from world_capitals'):
+    print(row.country)
+
 ```
 
 #### Configuration
