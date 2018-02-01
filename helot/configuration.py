@@ -1,8 +1,9 @@
-"""Implements the configuration details."""
-import os
-import yaml
+"""Implements the configuration object."""
+
 import json
 import logging
+import os
+import yaml
 
 
 class ConfigurationError(Exception):
@@ -13,9 +14,10 @@ class DataHolderObject(object):
     """Used for the conversion of a dict to a python object."""
 
     def _get_as_formated_string(self, number_of_tabs=0):
+        """Returns the object as a formatted string. """
         key_value_pairs = []
         prefix = '\t' * number_of_tabs
-        for attr_name in self.active_attributes():
+        for attr_name in self._active_attributes():
             value = getattr(self, attr_name)
             if isinstance(value, DataHolderObject):
                 key_value_desc = ''.join(
@@ -35,7 +37,8 @@ class DataHolderObject(object):
 
         return '\n'.join(key_value_pairs)
 
-    def active_attributes(self):
+    def _active_attributes(self):
+        """Yields all the configuration attributes."""
         for attr_name in dir(self):
             if attr_name.startswith('__') and attr_name.endswith('__'):
                 continue
@@ -66,10 +69,12 @@ class Configuration(DataHolderObject):
     """
 
     def __str__(self):
+        """Returns the object in a user friendly string format."""
         return self.__class__.__name__ + '\n' + self._get_as_formated_string(1)
 
     def reset(self):
-        for attr_name in self.active_attributes():
+        """Removes all configuration settings."""
+        for attr_name in self._active_attributes():
             delattr(self, attr_name)
 
     def initialize(self, data_holder=None, **kwargs):
@@ -97,13 +102,13 @@ class Configuration(DataHolderObject):
                     data_as_dict = yaml.load(open(data_holder))
             data_as_dict.update(kwargs)
             for key, value in data_as_dict.items():
-                setattr(self, key, _make_obj(value))
+                setattr(self, key, _make_holder_object(value))
         except Exception as ex:
             logging.exception(ex)
             raise ConfigurationError(ex)
 
 
-def _make_obj(item):
+def _make_holder_object(item):
     """Used to convert a dictionary to a python object.
 
     :param item: Can either be a dictionary, a list / tuple or a scalar.
@@ -113,12 +118,13 @@ def _make_obj(item):
     if isinstance(item, dict):
         obj = DataHolderObject()
         for key, value in item.items():
-            setattr(obj, key, _make_obj(value))
+            setattr(obj, key, _make_holder_object(value))
         return obj
     elif isinstance(item, (list, tuple)):
-        return [_make_obj(x) for x in item]
+        return [_make_holder_object(x) for x in item]
     else:
         return item
 
 
+# The configuration object to expose.
 configuration = Configuration()
