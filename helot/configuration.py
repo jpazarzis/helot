@@ -68,7 +68,6 @@ class configuration(metaclass=_ConfigurationMeta):
 
         :parameter **kwargs: key-value pairs to add in the configuration.
 
-        :raises FileNotFoundError: filename does not exist.
         :raises ConfigurationError: Parsing error.
         """
         try:
