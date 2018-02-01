@@ -31,9 +31,6 @@ class _ConfigurationMeta(type, DataHolderObject):
         raise ConfigurationError
 
 
-d
-
-
 class configuration(metaclass=_ConfigurationMeta):
     """Exposes configuration settings.
 
