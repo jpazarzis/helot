@@ -12,6 +12,37 @@ class ConfigurationError(Exception):
 class DataHolderObject(object):
     """Used for the conversion of a dict to a python object."""
 
+    def _get_as_formated_string(self, number_of_tabs=0):
+        key_value_pairs = []
+        prefix = '\t' * number_of_tabs
+        for attr_name in self.active_attributes():
+            value = getattr(self, attr_name)
+            if isinstance(value, DataHolderObject):
+                key_value_desc = ''.join(
+                    [
+                        prefix,
+                        attr_name,
+                        ': \n',
+                        value._get_as_formated_string(number_of_tabs + 1)
+                    ]
+                )
+            else:
+                key_value_desc = prefix + '{}: {}'.format(
+                    attr_name,
+                    getattr(self, attr_name)
+                )
+            key_value_pairs.append(key_value_desc)
+
+        return '\n'.join(key_value_pairs)
+
+    def active_attributes(self):
+        for attr_name in dir(self):
+            if attr_name.startswith('__') and attr_name.endswith('__'):
+                continue
+            if callable(getattr(self, attr_name)):
+                continue
+            yield attr_name
+
     def __getattr__(self, item):
         """Permits for x1.x2.y1 = value syntax."""
         if item == '__test__':
@@ -23,15 +54,7 @@ class DataHolderObject(object):
         return self.__dict__.get(item)
 
 
-class _ConfigurationMeta(type, DataHolderObject):
-    """Metaclass for configuration adding class level properties."""
-
-    def __call__(self, *args, **kwargs):
-        """Disallows instantiation."""
-        raise ConfigurationError
-
-
-class configuration(metaclass=_ConfigurationMeta):
+class Configuration(DataHolderObject):
     """Exposes configuration settings.
 
     A setting can be accessed using "dot" resolution, meaning like a class level
@@ -42,22 +65,14 @@ class configuration(metaclass=_ConfigurationMeta):
     a "static" C++ class meaning proving access only to its class level members.
     """
 
-    @classmethod
-    def reset(cls):
+    def __str__(self):
+        return self.__class__.__name__ + '\n' + self._get_as_formated_string(1)
 
-        to_delete = []
-        for attr_name in dir(cls):
-            if attr_name.startswith('__') and attr_name.endswith('__'):
-                continue
-            if callable(getattr(cls, attr_name)):
-                continue
-            to_delete.append(attr_name)
+    def reset(self):
+        for attr_name in self.active_attributes():
+            delattr(self, attr_name)
 
-        for attr_name in to_delete:
-            delattr(cls, attr_name)
-
-    @classmethod
-    def initialize(cls, data_holder=None, **kwargs):
+    def initialize(self, data_holder=None, **kwargs):
         """Sets the execution mode.
 
         :parameter data_holder: Can be one of the following:
@@ -69,7 +84,7 @@ class configuration(metaclass=_ConfigurationMeta):
         :raises ConfigurationError: Parsing error.
         """
         try:
-            cls.reset()
+            self.reset()
             if not data_holder:
                 data_holder = {}
             data_as_dict = None
@@ -82,7 +97,7 @@ class configuration(metaclass=_ConfigurationMeta):
                     data_as_dict = yaml.load(open(data_holder))
             data_as_dict.update(kwargs)
             for key, value in data_as_dict.items():
-                setattr(cls, key, _make_obj(value))
+                setattr(self, key, _make_obj(value))
         except Exception as ex:
             logging.exception(ex)
             raise ConfigurationError(ex)
@@ -104,3 +119,6 @@ def _make_obj(item):
         return [_make_obj(x) for x in item]
     else:
         return item
+
+
+configuration = Configuration()

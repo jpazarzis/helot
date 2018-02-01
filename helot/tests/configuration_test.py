@@ -31,7 +31,7 @@ class TestConfiguration(unittest.TestCase):
         self.assertEqual(configuration.languages.object_oriented.great, 'Java')
 
     def test_instantiation_of_configuration(self):
-        with self.assertRaises(ConfigurationError):
+        with self.assertRaises(TypeError):
             _ = configuration()
 
     def test_non_existing_attribute(self):
