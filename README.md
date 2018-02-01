@@ -27,31 +27,51 @@ executed it returns python objects containing all the available fields as
 properties that can be accessed using the dot notation.
 
 ###### Example
-```python
-    from helot import execute_query
-    for row in execute_query('Select name from person'):
-        print(row.name)
+
+Sample code to create and db and call execute query:
+
 ```
-
-Sample code for execute query:
-
-```angular2html
 import helot
 
+_SQL_INSERT_CAPITAL = '''
+Insert into capitals (capital) values ('{capital}')
+'''.format
+
 settings = {
-  "mysql": {
-    "host": "localhost",
-    "user": "root",
-    "passwd": "vagrant",
-    "db": "test"
-  }
+    "mysql": {
+        "host": "localhost",
+        "user": "root",
+        "passwd": "vagrant",
+        "db": "test"
+    }
 }
 
 helot.configuration.initialize(settings)
 
-for row in helot.execute_query('Select country, capital from world_capitals'):
-    print(row.country)
+with helot.make_non_query_executor(connect_to_db=False) as execute_query:
+    execute_query('DROP Database If EXISTS test')
+    execute_query('create Database test')
 
+with helot.make_non_query_executor() as execute_query:
+    execute_query('CREATE TABLE capitals (capital varchar(128) DEFAULT NULL)')
+    capitals = [
+        "London",
+        "Washington"
+    ]
+    for capital in capitals:
+        sql = _SQL_INSERT_CAPITAL(capital=capital)
+        execute_query(sql)
+
+for row in helot.execute_query('Select capital from capitals'):
+    print(row.capital)
+
+```
+Executing the script should return the following output:
+```
+London
+Washington
+
+Process finished with exit code 0
 ```
 
 #### Configuration
