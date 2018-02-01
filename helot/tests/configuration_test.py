@@ -1,17 +1,21 @@
 import os
 import unittest
 
-from helot.configuration import configuration, ConfigurationError
+from helot.configuration import configuration
+from helot.configuration import ConfigurationError
+from helot.configuration import DataHolderObject
 
 _CURRENT_DIR = os.path.dirname(os.path.realpath(__file__))
 _RESOURCES_DIR = os.path.join(_CURRENT_DIR, 'resources')
-_CONIFIGURATION_FILENAME = os.path.join(_RESOURCES_DIR, 'sample.yaml')
-_INVALID_CONIFIGURATION_FILENAME = os.path.join(_RESOURCES_DIR, 'invalid.yaml')
-configuration.initialize(_CONIFIGURATION_FILENAME)
+_YAML_CONIFIGURATION_FILENAME = os.path.join(_RESOURCES_DIR, 'sample.yaml')
+_JSON_CONIFIGURATION_FILENAME = os.path.join(_RESOURCES_DIR, 'sample.json')
+_BAD_JSON_CONIFIGURATION_FILENAME = os.path.join(_RESOURCES_DIR, 'bad.json')
+_BAD_YAML_CONIFIGURATION_FILENAME = os.path.join(_RESOURCES_DIR, 'invalid.yaml')
 
 
 class TestConfiguration(unittest.TestCase):
     def test_testing_mode(self):
+        configuration.initialize(_YAML_CONIFIGURATION_FILENAME)
         self.assertEqual(configuration.name, "Martin D'vloper")
         self.assertEqual(configuration.job, "Developer")
         self.assertEqual(configuration.skill, "Elite")
@@ -23,14 +27,168 @@ class TestConfiguration(unittest.TestCase):
                          ['C++', 'C#'])
         self.assertEqual(configuration.languages.object_oriented.great, 'Java')
 
-    def test_invalid_configuration_filename(self):
-        with self.assertRaises(FileNotFoundError):
-            configuration.initialize("invalid.nonexisting")
-
-    def test_invalid_yaml(self):
-        with self.assertRaises(ConfigurationError):
-            configuration.initialize(_INVALID_CONIFIGURATION_FILENAME)
-
     def test_instantiation_of_configuration(self):
         with self.assertRaises(ConfigurationError):
             _ = configuration()
+
+    def test_non_existing_attribute(self):
+        x = configuration.junk
+        self.assertTrue(isinstance(x, DataHolderObject))
+        configuration.junk = 'junk'
+        self.assertTrue(isinstance(configuration.junk, str))
+        self.assertEqual(configuration.junk, 'junk')
+        configuration.junk1.junk = 'junk'
+        self.assertTrue(isinstance(configuration.junk1, DataHolderObject))
+        self.assertEqual(configuration.junk1.junk, 'junk')
+        self.assertTrue(isinstance(configuration.junk1.junk, str))
+        configuration.j1.j2.j3.j4.j5 = 'junk'
+        self.assertEqual(configuration.j1.j2.j3.j4.j5, 'junk')
+
+    def test_setting_new_configuration_attribute(self):
+        configuration.junk = 'this is junk'
+        self.assertEqual(configuration.junk, 'this is junk')
+
+    def test_data_holder_object(self):
+        x = DataHolderObject()
+        x.t1.t2.t3 = [1, 2]
+        self.assertListEqual(x.t1.t2.t3, [1, 2])
+
+    def test_json_initialization(self):
+        configuration.initialize(_JSON_CONIFIGURATION_FILENAME)
+        self.assertEqual(configuration.name, "Martin D'vloper")
+        self.assertEqual(configuration.job, "Developer")
+        self.assertEqual(configuration.skill, "Elite")
+        self.assertEqual(configuration.employed, True)
+        self.assertEqual(configuration.age, 24)
+        self.assertEqual(configuration.foods, ['Apple', 'Mango', 1234])
+        self.assertEqual(configuration.languages.perl, 'Elite')
+        self.assertEqual(configuration.languages.object_oriented.best,
+                         ['C++', 'C#'])
+        self.assertEqual(configuration.languages.object_oriented.great, 'Java')
+
+    def test_bad_yaml(self):
+        with self.assertRaises(ConfigurationError):
+            configuration.initialize(_BAD_YAML_CONIFIGURATION_FILENAME)
+
+    def test_bad_json(self):
+        with self.assertRaises(ConfigurationError):
+            configuration.initialize(_BAD_JSON_CONIFIGURATION_FILENAME)
+
+    def test_non_existing_filename(self):
+        with self.assertRaises(ConfigurationError):
+            configuration.initialize("invalid.nonexisting")
+
+    def test_dict_initialization(self):
+        values_as_dict = {
+            "name": "Martin D'vloper",
+            "job": "Developer",
+            "skill": "Elite",
+            "employed": True,
+            "age": 24,
+            "foods": [
+                "Apple",
+                "Mango",
+                1234
+            ],
+            "languages": {
+                "perl": "Elite",
+                "python": "Elite",
+                "pascal": "Lame",
+                "object_oriented": {
+                    "best": [
+                        "C++",
+                        "C#"
+                    ],
+                    "great": "Java"
+                }
+            },
+            "mysql": {
+                "host": "localhost",
+                "user": "root",
+                "passwd": "vagrant",
+                "db": "test"
+            }
+        }
+        configuration.initialize(values_as_dict)
+        self.assertEqual(configuration.name, "Martin D'vloper")
+        self.assertEqual(configuration.job, "Developer")
+        self.assertEqual(configuration.skill, "Elite")
+        self.assertEqual(configuration.employed, True)
+        self.assertEqual(configuration.age, 24)
+        self.assertEqual(configuration.foods, ['Apple', 'Mango', 1234])
+        self.assertEqual(configuration.languages.perl, 'Elite')
+        self.assertEqual(configuration.languages.object_oriented.best,
+                         ['C++', 'C#'])
+        self.assertEqual(configuration.languages.object_oriented.great, 'Java')
+
+    def test_direct_initalization(self):
+        languages = {
+            "perl": "Elite",
+            "python": "Elite",
+            "pascal": "Lame",
+            "object_oriented": {
+                "best": [
+                    "C++",
+                    "C#"
+                ],
+                "great": "Java"
+            }
+        }
+
+        configuration.initialize(name="Martin D'vloper", job="Developer",
+                                 skill="Elite", employed=True,
+                                 foods=["Apple", "Mango", 1234],
+                                 languages=languages)
+        self.assertEqual(configuration.name, "Martin D'vloper")
+        self.assertEqual(configuration.job, "Developer")
+        self.assertEqual(configuration.skill, "Elite")
+        self.assertEqual(configuration.employed, True)
+        self.assertEqual(configuration.foods, ['Apple', 'Mango', 1234])
+        self.assertEqual(configuration.languages.object_oriented.best,
+                         ['C++', 'C#'])
+
+    def test_mixed_json_initialization(self):
+        configuration.initialize(_JSON_CONIFIGURATION_FILENAME,
+                                 junk='some junk')
+        self.assertEqual(configuration.name, "Martin D'vloper")
+        self.assertEqual(configuration.foods, ['Apple', 'Mango', 1234])
+        self.assertEqual(configuration.languages.perl, 'Elite')
+        self.assertEqual(configuration.languages.object_oriented.best,
+                         ['C++', 'C#'])
+        self.assertEqual(configuration.languages.object_oriented.great, 'Java')
+        self.assertEqual(configuration.junk, 'some junk')
+
+    def test_mixed_yaml_initialization(self):
+        configuration.initialize(_YAML_CONIFIGURATION_FILENAME,
+                                 junk='some junk')
+        self.assertEqual(configuration.name, "Martin D'vloper")
+        self.assertEqual(configuration.foods, ['Apple', 'Mango', 1234])
+        self.assertEqual(configuration.languages.perl, 'Elite')
+        self.assertEqual(configuration.languages.object_oriented.best,
+                         ['C++', 'C#'])
+        self.assertEqual(configuration.languages.object_oriented.great, 'Java')
+        self.assertEqual(configuration.junk, 'some junk')
+
+    # def test_reset(self):
+    #     return
+    #     configuration.initialize(_YAML_CONIFIGURATION_FILENAME)
+    #
+    #     expected_count = 8
+    #     retrieved_count = 0
+    #     for attr_name in dir(configuration):
+    #         if attr_name.startswith('__') and attr_name.endswith('__'):
+    #             continue
+    #         print(attr_name)
+    #         retrieved_count += 1
+    #     self.assertEqual(expected_count, retrieved_count)
+    #
+    #
+    #     configuration.reset()
+    #
+    #     expected_count = 0
+    #     retrieved_count = 0
+    #     for attr_name in dir(configuration):
+    #         if attr_name.startswith('__') and attr_name.endswith('__'):
+    #             continue
+    #         retrieved_count += 1
+    #     self.assertEqual(expected_count, retrieved_count)
